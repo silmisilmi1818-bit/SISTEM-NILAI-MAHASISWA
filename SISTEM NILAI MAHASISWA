@@ -1,0 +1,128 @@
+class Mahasiswa:
+    kampus = "Universitas Bina Bangsa"
+    jumlah_mahasiswa = 0
+
+    def __init__(self, nim, nama, nilai):
+        self.nim = nim
+        self.nama = nama
+        self.__nilai = 0                # Private attribute (Encapsulation)
+        self.nilai = nilai              # Memanggil setter
+        Mahasiswa.jumlah_mahasiswa += 1
+
+    @property
+    def nilai(self):
+        return self.__nilai
+
+    @nilai.setter
+    def nilai(self, nilai_baru):
+        if 0 <= nilai_baru <= 100:
+            self.__nilai = nilai_baru
+        else:
+            print(f"[Peringatan] Nilai {nilai_baru} tidak valid (harus 0-100)! Diatur ke 0.")
+            self.__nilai = 0
+
+    def info_mahasiswa(self):
+        grade = self.tentukan_grade(self.__nilai)
+        status = "LULUS" if self.__nilai >= 60 else "TIDAK LULUS"
+        print(f"NIM: {self.nim:<10} | Nama: {self.nama:<15} | Nilai: {self.__nilai:<3} | Grade: {grade} | Status: {status}")
+
+    @classmethod
+    def info_kampus(cls):
+        print(f"Institusi : {cls.kampus}")
+        print(f"Total Data: {cls.jumlah_mahasiswa} Mahasiswa")
+
+    @staticmethod
+    def tentukan_grade(nilai):
+        if nilai >= 85:
+            return "A"
+        elif nilai >= 75:
+            return "B"
+        elif nilai >= 60:
+            return "C"
+        elif nilai >= 50:
+            return "D"
+        else:
+            return "E"
+
+
+class SistemNilai:
+    def __init__(self, mata_kuliah):
+        self.mata_kuliah = mata_kuliah
+        self.daftar_mahasiswa = []
+
+    def tambah_mahasiswa(self, mahasiswa):
+        self.daftar_mahasiswa.append(mahasiswa)
+
+    def ubah_nilai_mahasiswa(self, nim_cari, nilai_baru):
+        for mhs in self.daftar_mahasiswa:
+            if mhs.nim == nim_cari:
+                mhs.nilai = nilai_baru  # Menguji fungsi setter
+                print(f"Berhasil memperbarui nilai untuk {mhs.nama}.")
+                return
+        print("NIM tidak ditemukan.")
+
+    def tampilkan_laporan(self):
+        print("\n" + "=" * 75)
+        print(f"LAPORAN NILAI MATA KULIAH: {self.mata_kuliah.upper()}")
+        Mahasiswa.info_kampus()
+        print("=" * 75)
+
+        if not self.daftar_mahasiswa:
+            print("Belum ada data mahasiswa.")
+            print("=" * 75)
+            return
+
+        total_nilai = 0
+        for mhs in self.daftar_mahasiswa:
+            mhs.info_mahasiswa()
+            total_nilai += mhs.nilai
+
+        rata_rata = total_nilai / len(self.daftar_mahasiswa)
+        print("-" * 75)
+        print(f"Rata-rata Nilai Kelas: {rata_rata:.2f}")
+        print("=" * 75)
+
+
+# ==========================================
+# MENU INTERAKTIF UTAMA
+# ==========================================
+if __name__ == "__main__":
+    nama_matkul = input("Masukkan Nama Mata Kuliah: ")
+    sistem = SistemNilai(nama_matkul)
+
+    while True:
+        print("\n--- MENU SISTEM NILAI ---")
+        print("1. Tambah Data Mahasiswa")
+        print("2. Ubah Nilai Mahasiswa (Tes Setter)")
+        print("3. Tampilkan Laporan Nilai")
+        print("4. Keluar")
+        
+        pilihan = input("Pilih menu (1-4): ")
+
+        if pilihan == "1":
+            nim = input("Masukkan NIM   : ")
+            nama = input("Masukkan Nama  : ")
+            try:
+                nilai = float(input("Masukkan Nilai : "))
+                mhs_baru = Mahasiswa(nim, nama, nilai)
+                sistem.tambah_mahasiswa(mhs_baru)
+                print("Data berhasil ditambahkan!")
+            except ValueError:
+                print("Error: Nilai harus berupa angka!")
+
+        elif pilihan == "2":
+            nim_edit = input("Masukkan NIM yang ingin diubah nilainya: ")
+            try:
+                nilai_revisi = float(input("Masukkan Nilai Baru: "))
+                sistem.ubah_nilai_mahasiswa(nim_edit, nilai_revisi)
+            except ValueError:
+                print("Error: Nilai harus berupa angka!")
+
+        elif pilihan == "3":
+            sistem.tampilkan_laporan()
+
+        elif pilihan == "4":
+            print("Program selesai. Terima kasih!")
+            break
+        else:
+            print("Pilihan tidak valid, silakan coba lagi.")
